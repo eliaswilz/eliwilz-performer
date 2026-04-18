@@ -550,6 +550,24 @@ body:has([id="essay-column"]) .grid {
   border-right: none;
 }
 
+/* ── Highlighted Numbers ──────────────────────────────── */
+.number.highlight {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #000;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  animation: goldGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes goldGlow {
+  0% {
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  }
+  100% {
+    box-shadow: 0 2px 12px rgba(255, 215, 0, 0.6);
+  }
+}
+
 .column-header {
   font-size: 1.25rem;
   text-transform: uppercase;
