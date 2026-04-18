@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Essays — Eli Wilz</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main class="grid">
+      
+      <!-- Left Column (Double Width) -->
+      <section class="left-column">
+        <header>
+          <h1>Essays</h1>
+          <p class="email"><a href="/">← back to home</a></p>
+        </header>
+        
+        <div class="filter-tags">
+          <button class="tag-filter active" data-tag="all">all</button>
+          <button class="tag-filter" data-tag="comedy">comedy</button>
+          <button class="tag-filter" data-tag="personal">personal</button>
+          <button class="tag-filter" data-tag="reviews">reviews</button>
+        </div>
+        
+        <div class="sort-controls">
+          <button class="sort-btn active" data-sort="alphabetical">alphabetical</button>
+          <button class="sort-btn" data-sort="recent">most recent</button>
+        </div>
+        
+        <div class="lists-container" id="lists-container">
+          <!-- Populated dynamically from Markdown files in content/essays/ -->
+        </div>
+      </section>
+
+      <!-- Gap Column -->
+      <section class="gap-column">
+      </section>
+
+      <!-- Essay Content Column -->
+      <section class="column essay-content" id="essay-column">
+        <h2 class="column-header">Select an essay</h2>
+      </section>
+
+    </main>
+    
+    <script type="module">
+      // Load all Markdown files from content/essays/
+      const markdownFiles = import.meta.glob('/content/essays/*.md', { eager: true });
+
+      // Build essayContent from Markdown frontmatter + body
+      const essayContent = {};
+
+      for (const path in markdownFiles) {
+        const file = markdownFiles[path];
+        const attrs = file.default.attributes;
+        const body = file.default.body;
+
+        essayContent[attrs.title] = {
+          title: attrs.display_title,
+          subtitle: attrs.subtitle,
+          date: attrs.date,
+          tags: attrs.tags || [],
+          substackUrl: attrs.substackUrl,
+          content: body.trim()
+        };
+      }
+
+      // Build the sidebar list items from loaded data
+      // Sort by date descending by default
+      const sortedKeys = Object.keys(essayContent).sort((a, b) => {
+        return new Date(essayContent[b].date) - new Date(essayContent[a].date);
+      });
+
+      const container = document.getElementById('lists-container');
+      for (const key of sortedKeys) {
+        const entry = essayContent[key];
+        const tagsStr = entry.tags.join(' ');
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.setAttribute('data-tags', tagsStr);
+        div.setAttribute('data-date', entry.date);
+        div.innerHTML = `<p>${key}</p>`;
+        container.appendChild(div);
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const tagFilters = document.querySelectorAll('.tag-filter');
+        const sortBtns = document.querySelectorAll('.sort-btn');
+        const listsContainer = document.querySelector('.lists-container');
+        let currentTag = 'all';
+        let currentSort = 'recent';
+
+        function getListItems() {
+          return Array.from(document.querySelectorAll('.list-item'));
+        }
+
+        // Tag filtering
+        tagFilters.forEach(filter => {
+          filter.addEventListener('click', function() {
+            currentTag = this.getAttribute('data-tag');
+            tagFilters.forEach(f => f.classList.remove('active'));
+            this.classList.add('active');
+            applyFiltersAndSort();
+          });
+        });
+
+        // Sort controls
+        sortBtns.forEach(btn => {
+          btn.addEventListener('click', function() {
+            currentSort = this.getAttribute('data-sort');
+            sortBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            applyFiltersAndSort();
+          });
+        });
+
+        function applyFiltersAndSort() {
+          const items = getListItems();
+
+          // Sort
+          const sorted = [...items].sort((a, b) => {
+            if (currentSort === 'alphabetical') {
+              return a.querySelector('p').textContent.localeCompare(b.querySelector('p').textContent);
+            } else {
+              return new Date(b.getAttribute('data-date')) - new Date(a.getAttribute('data-date'));
+            }
+          });
+
+          // Re-append in sorted order
+          sorted.forEach(item => listsContainer.appendChild(item));
+
+          // Filter visibility
+          sorted.forEach(item => {
+            const itemTags = item.getAttribute('data-tags').split(' ');
+            if (currentTag === 'all' || itemTags.includes(currentTag)) {
+              item.classList.remove('hidden');
+            } else {
+              item.classList.add('hidden');
+            }
+          });
+        }
+
+        // Essay item click
+        getListItems().forEach(item => {
+          item.addEventListener('click', function() {
+            const postTitle = this.querySelector('p').textContent;
+            const post = essayContent[postTitle];
+            if (post) {
+              displayPost(post);
+            }
+          });
+        });
+
+        function displayPost(post) {
+          const essayColumn = document.getElementById('essay-column');
+          // Convert plain text paragraphs to HTML paragraphs
+          const paragraphs = post.content.split(/\n\n+/).map(p => `<p>${p.trim()}</p>`).join('\n');
+          essayColumn.innerHTML = `
+            <h2 class="column-header">${post.title}</h2>
+            <p class="subtitle">${post.subtitle}</p>
+            <div class="separator"></div>
+            ${paragraphs}
+            <div class="separator"></div>
+            <p><a href="${post.substackUrl}" target="_blank">Read on Substack →</a></p>
+          `;
+        }
+      });
+    </script>
+  </body>
+</html>

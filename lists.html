@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lists — Eli Wilz</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main class="grid">
+      
+      <!-- Left Column (Double Width) -->
+      <section class="left-column">
+        <header>
+          <h1>Lists</h1>
+          <p class="email"><a href="/">← back to home</a></p>
+        </header>
+        
+        <div class="filter-tags">
+          <button class="tag-filter active" data-tag="all">all</button>
+          <button class="tag-filter" data-tag="comedy">comedy</button>
+          <button class="tag-filter" data-tag="madison">madison</button>
+          <button class="tag-filter" data-tag="shop">shop</button>
+          <button class="tag-filter" data-tag="movies">movies</button>
+        </div>
+        
+        <div class="lists-container" id="lists-container">
+          <!-- Populated dynamically from Markdown files in content/lists/ -->
+        </div>
+      </section>
+
+      <!-- Dynamic Content Columns -->
+      <section class="column" id="content-column-1">
+      </section>
+      
+      <section class="column" id="content-column-2">
+      </section>
+      
+      <section class="column" id="content-column-3">
+      </section>
+
+    </main>
+    
+    <script type="module">
+      // Load all Markdown files from content/lists/
+      const markdownFiles = import.meta.glob('/content/lists/*.md', { eager: true });
+
+      // Build listContent from Markdown frontmatter + body
+      const listContent = {};
+
+      for (const path in markdownFiles) {
+        const file = markdownFiles[path];
+        const attrs = file.default.attributes;
+        const body = file.default.body;
+
+        // Parse ### headings + following paragraph into items array
+        const items = [];
+        const sections = body.trim().split(/\n(?=###)/);
+        for (const section of sections) {
+          const lines = section.trim().split('\n').filter(l => l.trim());
+          if (lines.length >= 1 && lines[0].startsWith('###')) {
+            const title = lines[0].replace('###', '').trim();
+            const description = lines.slice(1).join(' ').trim();
+            items.push({ title, description });
+          }
+        }
+
+        listContent[attrs.title] = {
+          title: attrs.display_title,
+          originalTitle: attrs.title,
+          introduction: attrs.introduction,
+          tags: attrs.tags || [],
+          items
+        };
+      }
+
+      // Build the sidebar list items from loaded data
+      const container = document.getElementById('lists-container');
+      for (const key in listContent) {
+        const entry = listContent[key];
+        const tagsStr = entry.tags.join(' ');
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.setAttribute('data-tags', tagsStr);
+        div.innerHTML = `<p>${key}</p>`;
+        container.appendChild(div);
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const tagFilters = document.querySelectorAll('.tag-filter');
+        const listItems = document.querySelectorAll('.list-item');
+        
+        // Tag filtering functionality
+        tagFilters.forEach(filter => {
+          filter.addEventListener('click', function() {
+            const selectedTag = this.getAttribute('data-tag');
+            
+            // Update active state
+            tagFilters.forEach(f => f.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Filter list items
+            listItems.forEach(item => {
+              const itemTags = item.getAttribute('data-tags').split(' ');
+              
+              if (selectedTag === 'all' || itemTags.includes(selectedTag)) {
+                item.classList.remove('hidden');
+              } else {
+                item.classList.add('hidden');
+              }
+            });
+          });
+        });
+        
+        // List item click functionality
+        listItems.forEach(item => {
+          item.addEventListener('click', function() {
+            const listTitle = this.querySelector('p').textContent;
+            const content = listContent[listTitle];
+            
+            if (content) {
+              populateColumns(content);
+            }
+          });
+        });
+        
+        function parseMarkdownContent(content) {
+          // Find the markdown file by matching the original title
+          let body = '';
+          for (const path in markdownFiles) {
+            const file = markdownFiles[path];
+            const attrs = file.default.attributes;
+            if (attrs.title === content.originalTitle) {
+              body = file.default.body;
+              break;
+            }
+          }
+          
+          if (!body) return '';
+          
+          // Parse markdown sections (### headings + content)
+          const sections = body.trim().split(/\n(?=###)/);
+          let html = '';
+          let counter = 1;
+          
+          for (const section of sections) {
+            const lines = section.trim().split('\n').filter(l => l.trim());
+            if (lines.length >= 1 && lines[0].startsWith('###')) {
+              const title = lines[0].replace('###', '').trim();
+              const description = lines.slice(1).join('\n').trim();
+              const itemNumber = String(counter).padStart(2, '0');
+              
+              html += `
+                <div class="markdown-item">
+                  <div class="markdown-header">
+                    <span class="number">${itemNumber}</span>
+                    <h3>${title}</h3>
+                  </div>
+                  <div class="markdown-description">
+                    ${description.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('')}
+                  </div>
+                </div>
+              `;
+              counter++;
+            }
+          }
+          
+          return html;
+        }
+
+        function populateColumns(content) {
+          const columns = [
+            document.getElementById('content-column-1'),
+            document.getElementById('content-column-2'),
+            document.getElementById('content-column-3')
+          ];
+          
+          // Clear all columns
+          columns.forEach(col => col.innerHTML = '');
+          
+          // Add separator at top of middle column
+          columns[1].innerHTML = '<div class="separator"></div>';
+          
+          // Populate middle column with numbers and titles only
+          content.items.forEach((item, index) => {
+            const itemNumber = String(index + 1).padStart(2, '0');
+            
+            const itemHTML = `
+              <div class="item">
+                <span class="number">${itemNumber}</span>
+                <div class="content">
+                  <h3>${item.title}</h3>
+                </div>
+              </div>
+            `;
+            
+            columns[1].innerHTML += itemHTML;
+          });
+          
+          // Set header and introduction in far right double-wide column
+          columns[2].innerHTML = `
+            <div class="list-header-wide">
+              <h2 class="column-header">${content.title}</h2>
+              <div class="item">
+                <span class="number">00</span>
+                <div class="content">
+                  <p>${content.introduction}</p>
+                </div>
+              </div>
+              <div class="separator"></div>
+              <div class="markdown-content">
+                ${parseMarkdownContent(content)}
+              </div>
+            </div>
+          `;
+        }
+      });
+    </script>
+  </body>
+</html>
