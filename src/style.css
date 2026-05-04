@@ -587,6 +587,91 @@ body:has([id="essay-column"]) .grid {
   color: #A85530 !important;
 }
 
+/* ── Links Page ───────────────────────────────────────── */
+.links-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gap);
+}
+
+.links-card {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.links-photo {
+  width: 220px;
+  height: auto;
+  object-fit: cover;
+  border-radius: 0;
+  border: 1px solid var(--border);
+}
+
+.links-card h1 {
+  font-family: 'TayMisprint', Georgia, serif;
+  font-size: clamp(1.8rem, 7vw, 2.5rem);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.links-bio {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  max-width: 36rem;
+}
+
+.links-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.links-list a {
+  width: 100%;
+  display: block;
+  padding: 0.9rem 1rem;
+  border: 1px solid #444;
+  color: var(--text);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.links-list a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.links-home {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.links-home:hover {
+  color: var(--accent);
+}
+
 .column-header {
   font-size: 1.25rem;
   text-transform: uppercase;
