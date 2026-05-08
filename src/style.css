@@ -102,13 +102,15 @@ body {
   margin-top: 0.75rem;
 }
 
-.email a {
+.email a,
+.booking-email a {
   color: var(--accent);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
-.email a:hover {
+.email a:hover,
+.booking-email a:hover {
   color: var(--accent);
 }
 
@@ -269,49 +271,7 @@ body {
   margin: 0.5rem 0;
 }
 
-.booking-email a {
-  color: var(--accent);
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.booking-email a:hover {
-  color: var(--text);
-}
-
 /* ── Lists Page Styles ────────────────────────────────── */
-.filter-tags {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
-
-.tag-filter {
-  background: transparent;
-  border: 1px solid #444;
-  color: #999;
-  padding: 0.3rem 0.8rem;
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 2px;
-}
-
-.tag-filter:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-.tag-filter.active {
-  background: var(--accent);
-  color: #000;
-  border-color: var(--accent);
-}
-
 .lists-container {
   max-height: 400px;
   overflow-y: auto;
@@ -434,6 +394,7 @@ body:has([id="essay-column"]) .grid {
 }
 
 /* ── Sort Controls ────────────────────────────────────── */
+.filter-tags,
 .sort-controls {
   display: flex;
   gap: 0.5rem;
@@ -441,6 +402,7 @@ body:has([id="essay-column"]) .grid {
   flex-wrap: wrap;
 }
 
+.tag-filter,
 .sort-btn {
   background: transparent;
   border: 1px solid #444;
@@ -455,11 +417,13 @@ body:has([id="essay-column"]) .grid {
   border-radius: 2px;
 }
 
+.tag-filter:hover,
 .sort-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
 }
 
+.tag-filter.active,
 .sort-btn.active {
   background: var(--accent);
   color: #000;
@@ -569,6 +533,7 @@ body:has([id="essay-column"]) .grid {
 }
 
 /* ── Inline Links ─────────────────────────────────────── */
+.content h3 a,
 .content p a {
   color: #C46A3A !important;
   font-weight: 600;
@@ -583,6 +548,7 @@ body:has([id="essay-column"]) .grid {
   opacity: 0.8;
 }
 
+.content h3 a:hover,
 .content p a:hover {
   color: #A85530 !important;
 }
@@ -713,28 +679,20 @@ body:has([id="essay-column"]) .grid {
   line-height: 1.3;
 }
 
-.content h3 a {
-  color: #7dd3c0;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.content h3 a:hover {
-  color: var(--accent);
-}
-
 .content p {
   font-size: 0.85rem;
   color: var(--muted);
   line-height: 1.4;
 }
 
+.content h3 a,
 .content p a {
   color: #7dd3c0;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
+.content h3 a:hover,
 .content p a:hover {
   color: var(--accent);
 }
